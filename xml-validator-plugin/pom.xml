@@ -41,7 +41,6 @@
         <dependency>
             <groupId>com.github.and11</groupId>
             <artifactId>xml-validator</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

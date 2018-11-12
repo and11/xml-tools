@@ -23,9 +23,6 @@
         <wagonVersion>2.12</wagonVersion>
         <slf4j.version>1.7.25</slf4j.version>
 
-        <swagger-codegen-generators.version>1.0.0</swagger-codegen-generators.version>
-        <oapi-service-model.version>11.9.11</oapi-service-model.version>
-        <swagger-codegen.version>3.0.0</swagger-codegen.version>
         <mockito.version>1.10.19</mockito.version>
         <junit.version>4.12</junit.version>
 
@@ -34,39 +31,10 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.peterservice.openapi</groupId>
-                <artifactId>oapi-service-model</artifactId>
-                <version>${oapi-service-model.version}</version>
-
-            </dependency>
-            <dependency>
-                <groupId>io.swagger.codegen.v3</groupId>
-                <artifactId>swagger-codegen-cli</artifactId>
-                <version>${swagger-codegen.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.peterservice.openapi_esb.testbench</groupId>
-                <artifactId>openapiesb-osgiservices</artifactId>
-                <version>1.1.9-SNAPSHOT</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.maven.shared</groupId>
                 <artifactId>maven-filtering</artifactId>
                 <version>3.1.1</version>
             </dependency>
-            <dependency>
-                <groupId>com.nexign.oapi.spec.devtools</groupId>
-                <artifactId>xml-validator</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.swagger.codegen.v3</groupId>
-                <artifactId>swagger-codegen-generators</artifactId>
-                <version>${swagger-codegen-generators.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -77,22 +45,6 @@
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>2.3.23</version>
-            </dependency>
-            <dependency>
-                <groupId>com.nexign.oapi.spec.devtools</groupId>
-                <artifactId>spec-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.nexign.oapi.spec.devtools</groupId>
-                <artifactId>serviceconfigs-miner</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
@@ -166,16 +118,6 @@
                 <version>${wagonVersion}</version>
             </dependency>
             <dependency>
-                <groupId>com.nexign.oapi.spec.devtools</groupId>
-                <artifactId>spec-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.nexign.oapi.spec.devtools</groupId>
-                <artifactId>xml-validator</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>2.12.0</version>
@@ -185,12 +127,6 @@
                 <artifactId>xml-resolver</artifactId>
                 <version>1.2</version>
             </dependency>
-            <dependency>
-                <groupId>org.basex</groupId>
-                <artifactId>basex</artifactId>
-                <version>9.0.2</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
