@@ -9,17 +9,27 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ValidatorBuilder {
+
+    private static final QName OASIS_CATALOG = new QName("urn:oasis:names:tc:entity:xmlns:xml:catalog","catalog");
 
     private static class RaisingErrorHandler implements ErrorHandler {
         @Override
@@ -39,7 +49,8 @@ public class ValidatorBuilder {
     }
 
     public static final Logger logger = LoggerFactory.getLogger(ValidatorBuilder.class);
-    public ValidationErrorHandler createErrorHandler(){
+
+    public ValidationErrorHandler createErrorHandler() {
         return new ValidationErrorHandler();
     }
 
@@ -61,20 +72,15 @@ public class ValidatorBuilder {
                 logger.info("validating file {}", file);
                 validator.validate(new StreamSource(file.toFile()));
                 logger.info("validated file {}", file);
-            }
-            catch ( SAXParseException e )
-            {
+            } catch (SAXParseException e) {
                 logger.debug("got exception: {}", e);
-                try{
+                try {
                     errHandler.fatalError(e);
+                } catch (SAXException se) {
+                    throw new RuntimeException("While parsing " + file + ": " + e.getMessage(), se);
                 }
-                catch(SAXException se){
-                    throw new RuntimeException( "While parsing " + file + ": " + e.getMessage(), se );
-                }
-            }
-            catch ( Exception e )
-            {
-                throw new RuntimeException( "While parsing " + file + ": " + e.getMessage(), e );
+            } catch (Exception e) {
+                throw new RuntimeException("While parsing " + file + ": " + e.getMessage(), e);
             }
 
         }
@@ -87,8 +93,44 @@ public class ValidatorBuilder {
         return this;
     }
 
-    public List<File> findCatalogs(Path directory ){
-        return null;
+    private boolean isXMLFile(Path file) {
+        return file.toFile().getName().endsWith(".xml");
+    }
+
+    public void scanCatalogs(Path directory) throws IOException {
+
+        catalogs.addAll(Files.walk(directory).filter(Files::isRegularFile)
+                .filter(this::isXMLFile)
+                .filter(this::isXMLCatalog)
+                .collect(Collectors.toList()));
+    }
+
+    private StartElement getRootElement(InputStream is) throws Exception {
+        XMLEventReader parser = null;
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            parser = factory.createXMLEventReader(is);
+            while (parser.hasNext()) {
+                XMLEvent event = parser.nextEvent();
+                if (event.isStartElement()) {
+                    return event.asStartElement();
+                }
+            }
+            return null;
+        } finally {
+            if (parser != null) {
+                parser.close();
+            }
+        }
+    }
+
+    private boolean isXMLCatalog(Path path) {
+        try(InputStream is = Files.newInputStream(path)) {
+            StartElement element = getRootElement(is);
+            return (element != null) && (OASIS_CATALOG.equals(element.getName()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ErrorHandler errorHandler;
@@ -114,11 +156,10 @@ public class ValidatorBuilder {
             Validator validator = schema.newValidator();
             validator.setResourceResolver(resourcesResolver);
 
-            if(errorHandler != null){
+            if (errorHandler != null) {
                 logger.info("using provided error handler");
                 validator.setErrorHandler(errorHandler);
-            }
-            else {
+            } else {
                 logger.info("using default error handler");
                 validator.setErrorHandler(new RaisingErrorHandler());
             }
@@ -127,13 +168,13 @@ public class ValidatorBuilder {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-}
+    }
 
     private static CatalogResolver createResolver(List<Path> catalogs) throws IOException {
 
         CatalogManager manager = new CatalogManager();
         manager.setIgnoreMissingProperties(true);
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             manager.setVerbosity(Integer.MAX_VALUE);
         }
         manager.setPreferPublic(true);
